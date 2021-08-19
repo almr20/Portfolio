@@ -15,18 +15,18 @@ library(janitor)
 library(here)
 library(skimr)
 
-### Importando las bases de datos. 
+### Importing datasets. 
 daily_activity <- read.csv('C:/Users/Dell/Desktop/Fitabase Data 4.12.16-5.12.16/dailyActivity_merged.csv')
 activity <- daily_activity
 
-## Importando las bases de datos de calorías
+## Importing calories database.
 
 calories <- read.csv('C:/Users/Dell/Desktop/Fitabase Data 4.12.16-5.12.16/dailyCalories_merged.csv')
 measurements <- read.csv('C:/Users/Dell/Desktop/Fitabase Data 4.12.16-5.12.16/weightLogInfo_merged.csv')
 sleep <- read.csv('C:/Users/Dell/Desktop/Fitabase Data 4.12.16-5.12.16/sleepDay_merged.csv')
 heart <- read.csv('C:/Users/Dell/Desktop/Fitabase Data 4.12.16-5.12.16/heartrate_seconds_merged.csv')
 
-#### Limpieza de los datos 
+#### Data Cleaning 
 ## Calories
 
 calories$Id <- factor(calories$Id)
@@ -53,7 +53,7 @@ skim(sleep)
 sleep$hours <- sleep$TotalMinutesAsleep/60
 
 
-### Organizando los ejercicios diarios.
+### Cleaning daily exercises.
 str(activity)
 activity$ID <- factor(activity$ID)
 activity$activity_date <- as.POSIXct(activity$activity_date, format = '%m/%d/%Y')
