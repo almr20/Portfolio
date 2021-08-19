@@ -1,5 +1,5 @@
-# Data Analysis projects
-## Get to know me
+# Data Analystics projects
+## Portfolio
 
 This repository has the intention of sharing the projects I have done related to improving people's life standards
 Mainly by understanding the behaviours and finding patterns so that we can create data-driven decisions. 
