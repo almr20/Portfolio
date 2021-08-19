@@ -1,4 +1,4 @@
-# Data Analystics projects
+# Data Analytics projects
 ## Portfolio
 
 This repository has the intention of sharing the projects I have done related to improving people's life standards
