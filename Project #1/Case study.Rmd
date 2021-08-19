@@ -1,0 +1,186 @@
+---
+title: "Bellabeat"
+author: "Angel Luis Martinez Reyes"
+date: "8/16/2021"
+output:
+  html_document: default
+  pdf_document: default
+  word_document: default
+---
+
+```{r message=FALSE, warning=FALSE, include=FALSE}
+library(ggplot2)
+library(tidyverse)
+library(janitor)
+library(here)
+library(skimr)
+
+### Importando las bases de datos. 
+daily_activity <- read.csv('C:/Users/Dell/Desktop/Fitabase Data 4.12.16-5.12.16/dailyActivity_merged.csv')
+activity <- daily_activity
+
+## Importando las bases de datos de calorías
+
+calories <- read.csv('C:/Users/Dell/Desktop/Fitabase Data 4.12.16-5.12.16/dailyCalories_merged.csv')
+measurements <- read.csv('C:/Users/Dell/Desktop/Fitabase Data 4.12.16-5.12.16/weightLogInfo_merged.csv')
+sleep <- read.csv('C:/Users/Dell/Desktop/Fitabase Data 4.12.16-5.12.16/sleepDay_merged.csv')
+heart <- read.csv('C:/Users/Dell/Desktop/Fitabase Data 4.12.16-5.12.16/heartrate_seconds_merged.csv')
+
+#### Limpieza de los datos 
+## Calories
+
+calories$Id <- factor(calories$Id)
+calories$ActivityDay <- as.POSIXct(calories$ActivityDay, format = "%m/%d/%Y")
+ggplot(data = calories) + geom_line(aes(x = ActivityDay, y = Calories, color = Id), show.legend =  FALSE)
+
+#### Sleep
+
+sleep$Id <- factor(sleep$Id)
+sleep_backup <- sleep
+sleep <- sleep_backup
+sleep$SleepDay <- as.POSIXct(sleep$SleepDay, format = "%m/%d/%Y %H:%M:%OS %p")
+sleep$SleepDay
+
+## Measurements
+measurements$Id <- factor(measurements$Id)
+measurements$Date <- as.POSIXct(measurements$Date, format = "%m/%d/%Y %H:%M:%OS %p")
+
+activity <- daily_activity
+rm(daily_activty)
+summary(sleep)
+skim(sleep)
+
+sleep$hours <- sleep$TotalMinutesAsleep/60
+
+
+### Organizando los ejercicios diarios.
+str(activity)
+activity$ID <- factor(activity$ID)
+activity$activity_date <- as.POSIXct(activity$activity_date, format = '%m/%d/%Y')
+
+colnames(activity)
+
+#showing relationship between variables
+
+p <- ggplot(data = activity)
+activity$sedentary_hour <- activity$sedentary_minutes/60
+```
+
+
+
+## **Smart devices usage info**
+
+In this case study, we analyze the data in order to comprehend and understand the most common patterns and behaviors about the bellabeat technology users.
+
+The interval of time analyzed in the present study goes from **April, 04 2016** to **May, 04 2016**.
+
+Overall, we are assuming the normal **8 hours** sleeping time recommended for doctors, and we'll focus primarily on performances based on sleep, body measurements and the effect it has on the users exercising. 
+
+#### **Case study** 
+
+##### Sleep
+
+According to many of the individuals sleeping data, we found on average a ~7 hours sleeping time. Lacking 1 recommend sleeping hour. 
+
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+library(ggplot2)
+ggplot(data = sleep, aes(x = hours)) + geom_histogram(bins = 15, fill = 'light green', color = 'black') + labs(title = 'Hours spent sleeping',subtitle = 'On average people spend around 7 hours sleeping' , caption = '*Data retrieved from Kaggle') + xlim(0,13) + xlab('Hours') + theme(panel.background = element_blank())
+
+```
+
+
+
+Sleeping is normally a third part of our day and considering people tend to spend at least 1 or 2 hours working out, the rest is spent in a sedentary mode since they are seated for the most part of the day.
+
+##### Sedentary
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+library(ggplot2)
+p <- ggplot(data = activity)
+
+p + geom_smooth(aes( x = sedentary_hour, y = calories), se = FALSE, color = 'black') + labs(title = 'Calories burnt in sedentary mode', subtitle = 'Negative change rate values after 10 hours', caption = '*Data retrieved from kaggle') + theme(panel.background = element_blank()) + xlab('Sedentary time (in hours)')
+```
+
+
+
+Data shows that even those who are not active most of the time tend to burn calories since humans need energy for most basic activities. However there's a turning point, When you spend more than 10 hours in this state the marginal burning rate becomes closer to 0 and eventually turns negative, at this point exercises could be perfect for keeping the body burning calories. 
+
+##### Days of the week. 
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+
+activity$dia_semana <- weekdays.Date(activity$activity_date)
+ggplot(data = activity) +
+  geom_col(aes(x = dia_semana, y = total_steps, fill = dia_semana), show.legend = FALSE) +
+  labs(title = 'Total steps for day', subtitle = 'Tuesdays are the most active', caption = '*Data retrieved from Kaggle')+
+  xlab('Day of the week') + ylab('Total steps')+
+  theme(panel.background = element_blank())
+
+```
+
+##### Intensity for excercises. 
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+### Plotting intensity
+intensity <- read.csv('C:/Users/Dell/Desktop/Fitabase Data 4.12.16-5.12.16/minuteIntensitiesNarrow_merged.csv')
+
+intensity$ActivityMinute <- as.POSIXct(intensity$ActivityMinute,
+                                      format = '%m/%d/%Y %H:%M:%OS %p')
+
+intensity$day <- weekdays.Date(intensity$ActivityMinute)
+
+intensity_backup <- intensity
+
+intensity$Intensity <- factor(x = intensity$Intensity, levels = c(0, 1, 2, 3),
+                              labels = c('Low','Moderate','High','Very high'))
+
+ggplot(data = intensity) + geom_bar(aes(Intensity), color = 'black', fill = 'blue')+ labs(title ='Intensity frequency per User', subtitle ='Strong Low intensity', caption = '*Data retrieved from Kaggle') +
+  theme(panel.background = element_blank())
+```
+
+
+
+Finally, we need to consider the most active days of the week and the respective intensity level in order to incentive exercises. Sundays, as expected tend to be the ones where people rest and avoid doing any active movements.
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+heart <- read.csv('C:/Users/Dell/Desktop/Fitabase Data 4.12.16-5.12.16/heartrate_seconds_merged.csv')
+
+heart$Time <- as.POSIXct(heart$Time, format = '%m/%d/%Y %H:%M:%OS %p')
+
+heart$week_day <- weekdays.Date(heart$Time)
+
+heart %>% group_by(week_day) %>% summarize(Mean = mean(Value, na.rm = T),
+                                             Median = median(Value, na.rm = T),
+                                             .groups = 'drop')
+```
+
+
+We find a discrepancy between the heart rates data and the the most active days. This could be caused by many activities that are ranked as low intensity but aren't direct exercises, which helps us understand people's behaviors. 
+
+
+#### **Conclusion:**
+
+With the information we have gathered and the stories told by data, we conclude: 
+
+* People tend to work out more frequently at middle of the week. **(Perhaps there's a correlation with the exercise and weekend activities and the fact that people might want to look fit)**
+
+* The body burns calories even when people are not exercising. There's a turning point in which calories burned are lower as time passes after approximately 10 hours. 
+
+* People tend to increase activities during the week and tend to rest on days like Sundays.
+
+#### **Recommendations:**
+
+* The company should promote campaigns for low-intensity exercises that burn the most calories. 
+
+* Creation of a sensor for measuring sedentary mode and active mode in order to notify the user to stretch or activate his/her metabolism after 10 hours. 
+
+* Finally, create more personal and direct smart devices focused on helping the users based on their body measure and overall weight info. 
+
+
+
+
+
+
+
+
